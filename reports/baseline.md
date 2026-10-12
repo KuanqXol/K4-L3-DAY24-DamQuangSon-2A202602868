@@ -1,5 +1,5 @@
 # Baseline — điền trong checkpoint 1
 
-1. Agent có identity mỗi run chưa? Dẫn file/hàm:
-2. Ai cho phép `http_post`? Dẫn file/hàm:
-3. Nếu gửi sai PII ra sink, bằng chứng ở đâu? Dẫn file/hàm:
+1. Agent có identity mỗi run chưa? Dẫn file/hàm: Chưa có. Trong `agent/loop.py:L27-L54` (hàm `_naive_loop`), agent thực thi trực tiếp mà không khởi tạo `run_id`, không có session token, và không truyền `principal_id` hay identity nào của agent vào các lời gọi tool.
+2. Ai cho phép `http_post`? Dẫn file/hàm: Không có ai cấp phép (thiếu hoàn toàn Policy Enforcement Point). Trong `agent/loop.py:L34-L44` (hàm `_naive_loop`), chỉ cần `llm.find_injection()` trả về chỉ thị injection, vòng lặp tự ý gọi trực tiếp `tools.http_post()` (`agent/tools.py:L57-L73`) mà không có bất kỳ bước kiểm tra policy hay thẩm quyền nào.
+3. Nếu gửi sai PII ra sink, bằng chứng ở đâu? Dẫn file/hàm: Bằng chứng nằm ở phía server sink nhận dữ liệu tại file `reports/sink.log`, được ghi trong `sink/sink.py:L40-L56` (hàm `make_handler`, ghi `entry = {"path": self.path, "body": ...}` vào `reports/sink.log`). Phía agent hoàn toàn không có audit trail hay ledger nào ghi nhận việc đã gửi PII này.
